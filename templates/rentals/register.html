@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Register — DriveEase{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__logo">DriveEase</div>
+    <div class="auth-card__subtitle">Create your free account and start booking cars!</div>
+
+    {% if form.non_field_errors %}
+      <ul class="errorlist">{% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" placeholder="Choose a username" required autofocus
+          {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+        {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="help-text">Letters, digits and @/./+/-/_ only.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_email">&#128231; Email Address</label>
+        <input type="email" name="email" id="id_email" placeholder="e.g. customer@example.com" required autocomplete="email"
+          {% if form.email.value %}value="{{ form.email.value }}"{% endif %}>
+        {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_phone_number">&#128222; Phone Number</label>
+        <input type="tel" name="phone_number" id="id_phone_number" placeholder="e.g. +91 98765 43210" required autocomplete="tel"
+          {% if form.phone_number.value %}value="{{ form.phone_number.value }}"{% endif %}>
+        {% if form.phone_number.errors %}<ul class="errorlist">{% for e in form.phone_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="help-text">Include country code, e.g. +91 for India.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_password1">Password</label>
+        <input type="password" name="password1" id="id_password1" placeholder="Create a strong password" required>
+        {% if form.password1.errors %}<ul class="errorlist">{% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="help-text">Min. 8 characters. Must not be all numbers.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_password2">Confirm Password</label>
+        <input type="password" name="password2" id="id_password2" placeholder="Repeat your password" required>
+        {% if form.password2.errors %}<ul class="errorlist">{% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Create Account &#8594;</button>
+    </form>
+
+    <div class="auth-card__link">
+      Already have an account? <a href="{% url 'rentals:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Login here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

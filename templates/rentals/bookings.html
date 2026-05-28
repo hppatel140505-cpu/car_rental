@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings — DriveEase{% endblock %}
+
+{% block content %}
+
+<section class="booking-section">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">📋 History</div>
+      <h1 class="section__title">My <span>Bookings</span></h1>
+      <p class="section__subtitle">Manage and track your active and past car rentals</p>
+    </div>
+
+    <!-- CENTERED TAB SELECTOR -->
+    <div class="booking-tabs-container">
+      <div class="booking-tabs">
+        <button class="booking-tab active" id="tab-active" data-tab="active">
+          <span class="tab-badge" id="badge-active-count">0</span> Active Rides
+        </button>
+        <button class="booking-tab" id="tab-history" data-tab="history">
+          <span class="tab-badge" id="badge-history-count">0</span> Booking History
+        </button>
+      </div>
+    </div>
+
+    {% if bookings %}
+      <div class="bookings-grid" id="bookings-grid">
+        {% for booking in bookings %}
+          <div class="booking-item-card var-status-{{ booking.status|lower }} fadeInUp" data-is-past="{% if booking.status == 'Returned' or booking.status == 'Cancelled' %}true{% else %}false{% endif %}">
+            <!-- LEFT: Car Media -->
+            <div class="booking-item-card__media">
+              {% if booking.car.image %}
+                <img src="{{ booking.car.image.url }}" class="booking-item-card__img" alt="{{ booking.car.name }}">
+              {% else %}
+                <div class="booking-item-card__placeholder"></div>
+              {% endif %}
+            </div>
+
+            <!-- RIGHT: Booking Details -->
+            <div class="booking-item-card__content">
+              <!-- Header -->
+              <div class="booking-item-card__header">
+                <div class="booking-item-card__brand-wrap">
+                  <a href="{% url 'rentals:car_details' booking.car.pk %}" class="booking-item-card__name">{{ booking.car.name }}</a>
+                  <span class="booking-item-card__category">{{ booking.car.category.name }}</span>
+                </div>
+                
+                <!-- Dynamic Status Badges -->
+                {% if booking.status == 'Pending' %}
+                  <div class="booking-item-card__status-badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-color: rgba(245, 158, 11, 0.2);">
+                    <span>⏳ Pending Approval</span>
+                  </div>
+                {% elif booking.status == 'Approved' %}
+                  {% if booking.pickup_date > today %}
+                    <div class="booking-item-card__status-badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-color: rgba(245, 158, 11, 0.2);">
+                      <span>🟡 Upcoming</span>
+                    </div>
+                  {% else %}
+                    <div class="booking-item-card__status-badge" style="background: rgba(42, 157, 143, 0.1); color: var(--success); border-color: rgba(42, 157, 143, 0.2);">
+                      <span>🟢 Active Ride</span>
+                    </div>
+                  {% endif %}
+                {% elif booking.status == 'Cancelled' %}
+                  <div class="booking-item-card__status-badge" style="background: rgba(230, 57, 70, 0.1); color: var(--primary); border-color: rgba(230, 57, 70, 0.2);">
+                    <span>❌ Cancelled</span>
+                  </div>
+                {% elif booking.status == 'Returned' %}
+                  <div class="booking-item-card__status-badge" style="background: rgba(108, 117, 125, 0.1); color: var(--muted); border-color: rgba(108, 117, 125, 0.2);">
+                    <span>⚫ Returned & Done</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Details Grid -->
+              <div class="booking-item-card__details" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                <div class="booking-detail-col">
+                  <span class="booking-detail-col__label">📅 Pickup Date</span>
+                  <span class="booking-detail-col__value">{{ booking.pickup_date|date:"d M Y" }}</span>
+                  <span class="booking-detail-col__subvalue">at {{ booking.pickup_time|time:"g:i A" }}</span>
+                </div>
+                <div class="booking-detail-col">
+                  <span class="booking-detail-col__label">📅 Return Date</span>
+                  <span class="booking-detail-col__value">{{ booking.return_date|date:"d M Y" }}</span>
+                  <span class="booking-detail-col__subvalue">Duration: {{ booking.days }} Day{{ booking.days|pluralize }}</span>
+                </div>
+                <div class="booking-detail-col">
+                  <span class="booking-detail-col__label">🚘 Vehicle Plate</span>
+                  {% if booking.status == 'Approved' or booking.status == 'Returned' %}
+                    {% if booking.vehicle %}
+                      <span class="booking-detail-col__value" style="color: var(--primary); font-weight: 800; font-family: monospace; font-size: 0.95rem;">{{ booking.vehicle.plate_number }}</span>
+                    {% else %}
+                      <span class="booking-detail-col__value" style="color: var(--text-muted); font-style: italic; font-size: 0.82rem;">Not Assigned</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="booking-detail-col__value" style="color: var(--light); font-style: italic; font-size: 0.78rem; font-weight: 500;">Assigned on approval</span>
+                  {% endif %}
+                </div>
+                <div class="booking-detail-col">
+                  <span class="booking-detail-col__label">📍 Pickup Address</span>
+                  <span class="booking-detail-col__value" style="font-weight:500; font-size:0.8rem; line-height:1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="{{ booking.pickup_address }}">{{ booking.pickup_address|default:"Not specified" }}</span>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="booking-item-card__footer">
+                <div class="booking-item-card__price-box">
+                  <span class="booking-item-card__price-label">{% if booking.status == 'Returned' %}Total Price Paid{% else %}Estimated Rent Cost{% endif %}</span>
+                  <span class="booking-item-card__price-total {% if booking.status == 'Returned' or booking.status == 'Cancelled' %}price-total--muted{% endif %}">₹{% widthratio booking.car.price 1 booking.days %}</span>
+                </div>
+                <div class="booking-item-card__actions">
+                  {% if booking.status == 'Approved' or booking.status == 'Returned' %}
+                    <a href="{% url 'rentals:view_invoice' booking.pk %}" class="btn btn-outline btn-sm" style="color: var(--success); border-color: var(--success);" target="_blank">📄 View Invoice</a>
+                  {% endif %}
+                  <a href="{% url 'rentals:car_details' booking.car.pk %}" class="btn btn-secondary btn-sm">View Car</a>
+                  {% if booking.status == 'Pending' %}
+                    <form method="POST" action="{% url 'rentals:cancel_booking' booking.pk %}" onsubmit="return confirm('Are you sure you want to cancel your booking for {{ booking.car.name }}? This will return the car to the active fleet.');" style="display:inline; margin:0;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm">❌ Cancel Ride</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- DYNAMIC EMPTY STATES (JS TOGGLED) -->
+      <div class="empty-state" id="empty-active" style="display:none; padding: 4rem 1.5rem;">
+        <div class="empty-state__icon">📋</div>
+        <div class="empty-state__title">No Active Rentals</div>
+        <p class="empty-state__desc">You don't have any upcoming or ongoing rides. Ready to hit the road?</p>
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-primary btn-lg">Explore Fleet</a>
+      </div>
+
+      <div class="empty-state" id="empty-history" style="display:none; padding: 4rem 1.5rem;">
+        <div class="empty-state__icon">⏳</div>
+        <div class="empty-state__title">No Past Rentals</div>
+        <p class="empty-state__desc">You don't have any completed rental bookings in your history yet.</p>
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-secondary btn-lg">Rent a Car</a>
+      </div>
+
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state__icon">📋</div>
+        <div class="empty-state__title">No Bookings Yet</div>
+        <p class="empty-state__desc">You haven't booked any car yet. Select a premium car from our fleet and start your journey!</p>
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-primary btn-lg">Explore Fleet</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}{{ car.name }} — DriveEase{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="breadcrumb">
+    <a href="{% url 'rentals:home' %}">Home</a>
+    <span>/</span>
+    <a href="{% url 'rentals:car_list' %}">Our Fleet</a>
+    <span>/</span>
+    <span>{{ car.name }}</span>
+  </div>
+
+  <div class="car-detail">
+
+    <!-- LEFT: Image -->
+    <div>
+      {% if car.image %}
+        <img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-detail__img">
+      {% else %}
+        <div class="car-detail__placeholder"></div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: Info + Booking -->
+    <div>
+      <div class="car-detail__type">{{ car.category.name }}</div>
+      <h1 class="car-detail__name">{{ car.name }}</h1>
+      <div class="car-detail__price">₹{{ car.price }} <span>per day</span></div>
+      <p class="car-detail__desc">{{ car.description }}</p>
+
+      <div class="car-detail__specs">
+        <div class="spec-item">⛽ <strong>Fuel:</strong> <span>{{ car.fuel_type }}</span></div>
+        <div class="spec-item">🪑 <strong>Seats:</strong> <span>{{ car.seats }} People</span></div>
+        <div class="spec-item">❄️ <strong>AC:</strong> <span>{% if car.ac %}Yes{% else %}No{% endif %}</span></div>
+        <div class="spec-item">📦 <strong>Luggage:</strong> <span>{{ car.luggage }} Bags</span></div>
+        <div class="spec-item">🏷️ <strong>Type:</strong> <span>{{ car.category.name }}</span></div>
+        <div class="spec-item">🏷️ <strong>Status:</strong> <span>{% if car.stock > 0 %}Available{% else %}Not Available{% endif %}</span></div>
+      </div>
+
+      {% if car.stock > 0 %}
+        <div class="avail-badge yes">✅ Available with Chauffeur</div>
+
+        {% if user.is_authenticated %}
+
+          <!-- BOOKING FORM -->
+          <div class="booking-card">
+            <div class="booking-card__title">📋 Complete Your Booking</div>
+            <div style="background: rgba(42, 157, 143, 0.1); border-left: 3px solid var(--success); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.88rem; color: var(--text); margin-bottom: 1.25rem;">
+              🤵 <strong>Chauffeur Included:</strong> Every journey comes with a professional, verified driver. <strong>No driving license or security deposit required!</strong>
+            </div>
+
+            {% if form.errors %}
+              <div class="errorlist" style="margin-bottom:1rem;">
+                {% for field in form %}
+                  {% for err in field.errors %}<div>⚠️ {{ field.label }}: {{ err }}</div>{% endfor %}
+                {% endfor %}
+                {% for err in form.non_field_errors %}<div>⚠️ {{ err }}</div>{% endfor %}
+              </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'rentals:book_car' car.pk %}" id="booking-form">
+              {% csrf_token %}
+              <span id="car-price-data" data-price="{{ car.price }}" style="display:none;"></span>
+
+              <div class="booking-form-grid">
+                <div class="form-group">
+                  <label for="id_pickup_date">📅 Pickup Date</label>
+                  {{ form.pickup_date }}
+                </div>
+                <div class="form-group">
+                  <label for="id_pickup_time">🕐 Pickup Time</label>
+                  {{ form.pickup_time }}
+                </div>
+                <div class="form-group">
+                  <label for="id_return_date">📅 Return Date</label>
+                  {{ form.return_date }}
+                </div>
+                <div class="form-group">
+                  <label id="days-label" style="color:var(--success); font-weight:700;">🗓️ Total Days: <span id="days-count">—</span></label>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:.5rem;">
+                <label for="id_pickup_address">📍 Pickup Address</label>
+                {{ form.pickup_address }}
+              </div>
+
+              <!-- DYNAMIC LUXURY INVOICE BREAKDOWN -->
+              <div id="invoice-estimator" class="invoice-estimator-box" style="display: none;">
+                <div class="invoice-title">🧾 Estimated Price Breakdown</div>
+                
+                <div class="invoice-row">
+                  <span class="invoice-label">Daily Rent (₹{{ car.price }} × <span id="invoice-days-count">0</span> days)</span>
+                  <span class="invoice-val" id="invoice-base-rent">₹0</span>
+                </div>
+
+
+                
+                <div class="invoice-divider"></div>
+                
+                <div class="invoice-row total">
+                  <span class="invoice-label-total">Estimated Grand Total</span>
+                  <span class="invoice-val-total" id="invoice-grand-total">₹0</span>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top:1.2rem;">
+                Confirm Booking
+              </button>
+            </form>
+          </div>
+
+        {% else %}
+          <a href="{% url 'rentals:login' %}" class="btn btn-primary btn-lg">🔐 Login to Book</a>
+        {% endif %}
+
+      {% else %}
+        <div class="avail-badge no">❌ Not Available Right Now</div>
+      {% endif %}
+
+      <div style="margin-top:1.5rem;">
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-secondary">← Back to Fleet</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

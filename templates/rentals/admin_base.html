@@ -1,0 +1,447 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block admin_title %}DriveEase Custom Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+  <style>
+    /* Premium Dashboard Styles */
+    :root {
+      --admin-sidebar-bg: #0f172a;
+      --admin-sidebar-hover: rgba(255, 255, 255, 0.08);
+      --admin-sidebar-active: #e63946;
+      --admin-sidebar-text: #94a3b8;
+      --admin-sidebar-text-active: #ffffff;
+      --admin-bg: #f8fafc;
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+    
+    body.admin-body {
+      background: var(--admin-bg);
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Sidebar */
+    .admin-sidebar {
+      background: var(--admin-sidebar-bg);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    
+    .admin-sidebar__brand {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .admin-sidebar__brand span {
+      color: #fff;
+      font-weight: 700;
+    }
+    
+    .admin-sidebar__menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    
+    .admin-sidebar__link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1rem;
+      color: var(--admin-sidebar-text);
+      font-weight: 600;
+      font-size: 0.92rem;
+      border-radius: var(--radius);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .admin-sidebar__link:hover {
+      background: var(--admin-sidebar-hover);
+      color: #fff;
+      transform: translateX(3px);
+    }
+    
+    .admin-sidebar__link.active {
+      background: var(--admin-sidebar-active);
+      color: var(--admin-sidebar-text-active);
+      box-shadow: 0 4px 12px rgba(230, 57, 70, 0.35);
+    }
+    
+    .admin-sidebar__footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.25rem;
+      margin-top: 2rem;
+    }
+    
+    /* Main Panel */
+    .admin-main {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      overflow-x: hidden;
+    }
+    
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 1.2rem 2rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .admin-header__title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    
+    .admin-header__user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .admin-header__avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, #ff7675 100%);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    
+    /* Admin Content Cards */
+    .admin-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .admin-card__title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    /* KPI Stats Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .kpi-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+    
+    .kpi-card:hover {
+      transform: translateY(-3px);
+    }
+    
+    .kpi-icon {
+      font-size: 2.2rem;
+      background: var(--bg-gray);
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .kpi-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .kpi-num {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    
+    .kpi-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Tables list styling */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .admin-table th {
+      background: var(--bg-gray);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .admin-table td {
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    
+    .admin-table tr:hover {
+      background: #fafafa;
+    }
+    
+    /* Badges */
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 99px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .badge-active {
+      background: rgba(42, 157, 143, 0.12);
+      color: var(--success);
+    }
+    
+    .badge-past {
+      background: rgba(108, 117, 125, 0.12);
+      color: var(--muted);
+    }
+    
+    .badge-upcoming {
+      background: rgba(230, 57, 70, 0.12);
+      color: var(--primary);
+    }
+    
+    /* Search-Filters */
+    .admin-filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    
+    .admin-search-input {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      width: 100%;
+      max-width: 320px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    
+    .admin-search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+    }
+    
+    /* Form controls in Admin Layout */
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .admin-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    .admin-form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    /* Actions */
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      background: var(--bg-gray);
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+    
+    .action-btn-edit {
+      color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .action-btn-edit:hover {
+      background: #3b82f6;
+      color: #fff;
+    }
+    
+    .action-btn-delete {
+      color: var(--primary);
+      background: rgba(230, 57, 70, 0.1);
+    }
+    
+    .action-btn-delete:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      body.admin-body {
+        grid-template-columns: 1fr;
+      }
+      .admin-sidebar {
+        display: none;
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <a href="{% url 'rentals:admin_dashboard' %}" class="admin-sidebar__brand"><span>Admin</span></a>
+    
+    <nav class="admin-sidebar__menu">
+      <a href="{% url 'rentals:admin_dashboard' %}" class="admin-sidebar__link {% if active_tab == 'dashboard' %}active{% endif %}">
+        <span>📊</span> Dashboard
+      </a>
+      <a href="{% url 'rentals:admin_bookings' %}" class="admin-sidebar__link {% if active_tab == 'bookings' %}active{% endif %}">
+        <span>📅</span> Manage Bookings
+      </a>
+      <a href="{% url 'rentals:admin_cars' %}" class="admin-sidebar__link {% if active_tab == 'cars' %}active{% endif %}">
+        <span>🚘</span> Manage Cars
+      </a>
+      <a href="{% url 'rentals:admin_cartypes' %}" class="admin-sidebar__link {% if active_tab == 'cartypes' %}active{% endif %}">
+        <span>🏷️</span> Car Categories
+      </a>
+    </nav>
+    
+    <div class="admin-sidebar__footer">
+      <a href="{% url 'rentals:home' %}" class="admin-sidebar__link" style="background: rgba(255,255,255,0.05);">
+        <span>🏠</span> Back to Site
+      </a>
+    </div>
+  </aside>
+
+  <!-- Admin Main Content -->
+  <main class="admin-main">
+    
+    <!-- Top Header -->
+    <header class="admin-header">
+      <div class="admin-header__title">
+        {% block admin_header_title %}Control Center{% endblock %}
+      </div>
+      
+      <div class="admin-header__user">
+        <div class="admin-header__avatar">
+          {{ user.username|slice:":1"|upper }}
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--text);">{{ user.username }}</span>
+          <span style="font-size: 0.72rem; color: var(--muted); font-weight: 500;">Staff Administrator</span>
+        </div>
+        <a href="{% url 'rentals:logout' %}" class="btn btn-secondary btn-sm" style="margin-left: 1rem;">Logout</a>
+      </div>
+    </header>
+
+    <!-- Global Messages/Alerts Container -->
+    {% if messages %}
+    <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" style="position: static; animation: none; max-width: 100%;">
+          {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Custom Main View Content -->
+    {% block admin_content %}{% endblock %}
+
+  </main>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

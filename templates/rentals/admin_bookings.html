@@ -1,0 +1,144 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Manage Bookings — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}📅 Order / Bookings Management{% endblock %}
+
+
+
+{% block admin_content %}
+
+<div class="admin-card">
+  <div class="admin-card__title" style="margin-bottom: 2rem;">
+    <span>List of Rental Bookings</span>
+    <span style="font-size: 0.8rem; font-weight: 500; color: var(--muted);">Total: {{ bookings|length }} orders found</span>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="admin-filter-bar">
+    <!-- Search -->
+    <form method="GET" action="" style="display: flex; flex: 1; gap: 0.5rem; max-width: 380px;">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by customer, car or address..." class="admin-search-input" style="max-width: 100%;">
+      {% if status_filter %}
+        <input type="hidden" name="status" value="{{ status_filter }}">
+      {% endif %}
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      {% if query %}
+        <a href="?status={{ status_filter }}" class="btn btn-secondary btn-sm" style="display: flex; align-items: center;">Reset</a>
+      {% endif %}
+    </form>
+    
+    <!-- Status Tabs -->
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="?status=new{% if query %}&q={{ query }}{% endif %}" class="filter-chip {% if status_filter == 'new' or not status_filter %}active{% endif %}">
+        📥 New Bookings
+      </a>
+      <a href="?status=upcoming{% if query %}&q={{ query }}{% endif %}" class="filter-chip {% if status_filter == 'upcoming' %}active{% endif %}">
+        📅 Upcoming Schedule
+      </a>
+      <a href="?status=running{% if query %}&q={{ query }}{% endif %}" class="filter-chip {% if status_filter == 'running' %}active{% endif %}">
+        🟢 Running Cars
+      </a>
+      <a href="?status=history{% if query %}&q={{ query }}{% endif %}" class="filter-chip {% if status_filter == 'history' %}active{% endif %}">
+        📜 Complete History
+      </a>
+    </div>
+  </div>
+
+  <!-- Table list of Bookings -->
+  {% if bookings %}
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Car Information</th>
+          <th>Booking Dates</th>
+          <th>Status</th>
+          <th>Total Cost</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in bookings %}
+        <tr>
+          <td style="font-weight: 800; color: var(--primary);">#{{ booking.id }}</td>
+          <td>
+            <div style="font-weight: 700; color: var(--text);">{{ booking.user.username }}</div>
+            <span style="font-size: 0.75rem; color: var(--muted);">Email: {{ booking.user.email }}</span>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              {% if booking.car.image %}
+                <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}" class="booking-car-img" style="width: 50px; height: 38px; border-radius: 4px; object-fit: cover;">
+              {% else %}
+                <div class="booking-car-img" style="display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🚘</div>
+              {% endif %}
+              <div>
+                <div style="font-weight: 600;">{{ booking.car.name }}</div>
+                <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--primary);">{{ booking.car.category.name }}</span>
+                <span style="font-size: 0.75rem; color: var(--muted); font-family: monospace; display: block; margin-top: 0.15rem;">🚘 Plate: {% if booking.vehicle %}{{ booking.vehicle.plate_number }}{% else %}Not Assigned{% endif %}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 600; font-size: 0.86rem; color: var(--text);">
+              📅 {{ booking.pickup_date }} to {{ booking.return_date }}
+            </div>
+            <div style="font-size: 0.76rem; color: var(--muted); margin-top: 0.2rem;">
+              ⏱️ {{ booking.pickup_time }} &bull; ⏳ {{ booking.days }} days
+            </div>
+            <div style="font-size: 0.72rem; color: var(--light); margin-top: 0.15rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ booking.pickup_address }}">
+              📍 {{ booking.pickup_address }}
+            </div>
+          </td>
+          <td>
+            {% if booking.is_running %}
+              <span class="badge-status badge-success">🟢 Running</span>
+            {% elif booking.is_upcoming %}
+              <span class="badge-status badge-warning" style="background: rgba(245, 158, 11, 0.12); color: #d97706;">🟡 Upcoming</span>
+            {% elif booking.status == 'Returned' %}
+              <span class="badge-status badge-info">🔵 Returned</span>
+            {% else %}
+              <span class="badge-status badge-danger">🔴 Cancelled</span>
+            {% endif %}
+          </td>
+          <td style="font-weight: 800; color: var(--success); font-size: 1rem;">
+            ₹{{ booking.total_cost|floatformat:2 }}
+          </td>
+          <td>
+            <div class="action-btn-group" style="flex-wrap: wrap; gap: 0.4rem; max-width: 280px;">
+              {% if booking.is_running %}
+                <form method="POST" action="{% url 'rentals:admin_booking_return' booking.pk %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-transition btn-return" title="Mark as Returned">↩ Car Return Aa Gayi</button>
+                </form>
+              {% endif %}
+              
+              {% if booking.status == 'Approved' or booking.status == 'Returned' %}
+                <a href="{% url 'rentals:view_invoice' booking.pk %}" target="_blank" class="btn-transition btn-invoice" title="View/Print Invoice">🧾 Invoice</a>
+              {% endif %}
+              
+              <a href="{% url 'rentals:admin_booking_edit' booking.pk %}" class="action-btn action-btn-edit" title="Edit Booking Info" style="width: 28px; height: 28px;">✏️</a>
+              <a href="{% url 'rentals:admin_booking_delete' booking.pk %}" class="action-btn action-btn-delete" title="Delete Booking Record" style="width: 28px; height: 28px;">🗑️</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon">🔍</span>
+    <h3 class="empty-state__title">No Bookings Found</h3>
+    <p class="empty-state__desc">We couldn't find any bookings matching your current filters or search term.</p>
+    {% if query or status_filter != 'all' %}
+      <a href="?" class="btn btn-secondary btn-sm">Clear All Filters</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

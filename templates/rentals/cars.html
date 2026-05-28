@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Our Fleet — DriveEase{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HERO BANNER -->
+<div class="fleet-hero">
+  <div class="fleet-hero__bg-orb fleet-hero__bg-orb--1"></div>
+  <div class="fleet-hero__bg-orb fleet-hero__bg-orb--2"></div>
+  <div class="fleet-hero__inner">
+    <div class="fleet-hero__tag">Chauffeur-Driven Fleet</div>
+    <h1 class="fleet-hero__title">Choose Your <span>Perfect Ride</span></h1>
+    <p class="fleet-hero__sub">{{ cars|length }} premium vehicle{{ cars|length|pluralize }} available with professional driver included</p>
+  </div>
+</div>
+
+<section class="fleet-section">
+  <div class="container">
+
+    <!-- FILTER + SEARCH BAR -->
+    <div class="fleet-filter-wrap">
+      <div class="fleet-search">
+        <svg class="fleet-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="product-search" placeholder="Search vehicles or categories…" autocomplete="off">
+      </div>
+      <div class="fleet-chips">
+        <button class="fleet-chip active" data-category="all">
+          <span class="fleet-chip__dot"></span> All Types
+        </button>
+        {% for cat in categories %}
+          <button class="fleet-chip" data-category="{{ cat.name }}">
+            <span class="fleet-chip__dot"></span> {{ cat.name }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CARS GRID -->
+    {% if cars %}
+      <div class="fleet-grid" id="fleet-grid">
+        {% for car in cars %}
+        <a href="{% url 'rentals:car_details' car.pk %}" class="fleet-card-link" data-category="{{ car.category.name }}" data-name="{{ car.name|lower }}">
+          <div class="fleet-card">
+            <!-- Image / Placeholder -->
+            <div class="fleet-card__media">
+              {% if car.image %}
+                <img src="{{ car.image.url }}" alt="{{ car.name }}" class="fleet-card__img">
+              {% else %}
+                <div class="fleet-card__placeholder">
+                  <span class="fleet-card__emoji"></span>
+                </div>
+              {% endif %}
+              <!-- Availability ribbon -->
+              {% if car.stock > 0 %}
+                <div class="fleet-card__ribbon fleet-card__ribbon--avail">✓ Available</div>
+              {% else %}
+                <div class="fleet-card__ribbon fleet-card__ribbon--out">✗ Booked</div>
+              {% endif %}
+              <!-- Category tag -->
+              <div class="fleet-card__cat">{{ car.category.name }}</div>
+            </div>
+
+            <!-- Body -->
+            <div class="fleet-card__body">
+              <h3 class="fleet-card__name">{{ car.name }}</h3>
+              <p class="fleet-card__desc">{{ car.description }}</p>
+
+              <!-- Specs row -->
+              <div class="fleet-card__specs">
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">⛽</span>
+                  <span class="fleet-spec__label">{{ car.fuel_type }}</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">🪑</span>
+                  <span class="fleet-spec__label">{{ car.seats }} Seats</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">❄️</span>
+                  <span class="fleet-spec__label">{% if car.ac %}AC Yes{% else %}No AC{% endif %}</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">📦</span>
+                  <span class="fleet-spec__label">{{ car.luggage }} Bags</span>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="fleet-card__footer">
+                <div class="fleet-card__price">
+                  <span class="fleet-card__price-amount">₹{{ car.price }}</span>
+                  <span class="fleet-card__price-unit">/ day</span>
+                </div>
+                <div class="fleet-card__cta">
+                  Book Now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <!-- No results found (JS toggle) -->
+      <div class="fleet-empty-filter" id="no-results" style="display:none;">
+        <div class="fleet-empty-filter__icon">🔍</div>
+        <div class="fleet-empty-filter__title">No cars found</div>
+        <p class="fleet-empty-filter__desc">Try a different search term or category filter.</p>
+      </div>
+
+    {% else %}
+      <div class="fleet-empty">
+        <div class="fleet-empty__icon">🅿</div>
+        <div class="fleet-empty__title">No Cars Listed Yet</div>
+        <p class="fleet-empty__desc">Our fleet will appear here once added by the admin.</p>
+        <a href="/admin/" class="btn btn-primary">Go to Admin Panel</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

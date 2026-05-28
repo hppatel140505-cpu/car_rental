@@ -1,0 +1,151 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}{{ title }} — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="breadcrumb">
+  <a href="{% url 'rentals:admin_dashboard' %}">Dashboard</a> &raquo; 
+  <a href="{% url 'rentals:admin_cars' %}">Cars</a> &raquo;
+  <span>{{ title }}</span>
+</div>
+
+<div class="admin-card" style="max-width: 800px; margin: 0 auto;">
+  <div class="admin-card__title" style="margin-bottom: 2rem;">
+    <span>📝 Vehicle Information Specs</span>
+    {% if car %}
+      <span style="font-size: 0.8rem; font-weight: 500; color: var(--muted);">Editing: {{ car.name }}</span>
+    {% endif %}
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" class="auth-form">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+      <div class="errorlist">
+        {% for error in form.non_field_errors %}
+          <div>⚠️ {{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+      <!-- Car Name -->
+      <div class="admin-form-group">
+        <label for="{{ form.name.id_for_label }}">Car Name / Model Name</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Category Select -->
+      <div class="admin-form-group">
+        <label for="{{ form.category.id_for_label }}">Car Category Type</label>
+        {{ form.category }}
+        {% if form.category.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.category.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Rent Price -->
+      <div class="admin-form-group">
+        <label for="{{ form.price.id_for_label }}">Rent Cost per Day (₹)</label>
+        {{ form.price }}
+        {% if form.price.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.price.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Add Vehicle Plates -->
+      <div class="admin-form-group">
+        <label for="{{ form.initial_plate_numbers.id_for_label }}">{{ form.initial_plate_numbers.label }}</label>
+        {{ form.initial_plate_numbers }}
+        <div style="font-size: 0.74rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.3;">{{ form.initial_plate_numbers.help_text }}</div>
+        {% if form.initial_plate_numbers.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.initial_plate_numbers.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Fuel Type -->
+      <div class="admin-form-group">
+        <label for="{{ form.fuel_type.id_for_label }}">Fuel Type</label>
+        {{ form.fuel_type }}
+        {% if form.fuel_type.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.fuel_type.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Seats Count -->
+      <div class="admin-form-group">
+        <label for="{{ form.seats.id_for_label }}">Seats Count</label>
+        {{ form.seats }}
+        {% if form.seats.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.seats.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Luggage Capacity -->
+      <div class="admin-form-group">
+        <label for="{{ form.luggage.id_for_label }}">Luggage Capacity (Bags count)</label>
+        {{ form.luggage }}
+        {% if form.luggage.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.luggage.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Air Conditioning (AC) -->
+      <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.8rem;">
+        {{ form.ac }}
+        <label for="{{ form.ac.id_for_label }}" style="margin-bottom: 0; cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--text-dark);">❄️ Has Air Conditioning (AC)</label>
+        {% if form.ac.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.ac.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Under Maintenance -->
+      <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.8rem;">
+        {{ form.is_under_maintenance }}
+        <label for="{{ form.is_under_maintenance.id_for_label }}" style="margin-bottom: 0; cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--text-dark);">🔧 Under Maintenance</label>
+        {% if form.is_under_maintenance.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.is_under_maintenance.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Description -->
+    <div class="admin-form-group" style="margin-top: 1rem;">
+      <label for="{{ form.description.id_for_label }}">Car Description & Features Specifications</label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.description.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Car Image Upload -->
+    <div class="admin-form-group" style="margin-top: 1rem;">
+      <label for="{{ form.image.id_for_label }}">Vehicle Display Photo</label>
+      {% if car and car.image %}
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem; background: var(--bg-gray); padding: 0.8rem; border-radius: var(--radius);">
+          <img src="{{ car.image.url }}" alt="{{ car.name }}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+          <span style="font-size: 0.82rem; color: var(--muted);">Current photo is shown. Select a new file below to overwrite it.</span>
+        </div>
+      {% endif %}
+      {{ form.image }}
+      {% if form.image.errors %}
+        <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.image.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; justify-content: flex-end;">
+      <a href="{% url 'rentals:admin_cars' %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Vehicle</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

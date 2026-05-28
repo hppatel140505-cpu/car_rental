@@ -1,0 +1,39 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Cancel Booking #{{ booking.id }} — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}🗑️ Cancel Booking #{{ booking.id }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="breadcrumb">
+  <a href="{% url 'rentals:admin_dashboard' %}">Dashboard</a> &raquo; 
+  <a href="{% url 'rentals:admin_bookings' %}">Bookings</a> &raquo;
+  <span>Cancel Booking</span>
+</div>
+
+<div class="admin-card" style="max-width: 550px; margin: 2rem auto; text-align: center; border-color: rgba(230, 57, 70, 0.2);">
+  <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+  <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem;">Cancel & Delete Booking?</h2>
+  
+  <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+    Are you sure you want to cancel the booking for customer <strong>{{ booking.user.username }}</strong> with the vehicle <strong>{{ booking.car.name }}</strong>?
+  </p>
+
+  <div style="background: var(--bg-gray); padding: 1rem; border-radius: var(--radius); text-align: left; font-size: 0.86rem; margin-bottom: 2rem;">
+    <div><strong>📅 Dates:</strong> {{ booking.pickup_date }} to {{ booking.return_date }}</div>
+    <div style="margin-top: 0.3rem;"><strong>⏳ Duration:</strong> {{ booking.days }} Days</div>
+    <div style="margin-top: 0.3rem;"><strong>📍 Pickup Address:</strong> {{ booking.pickup_address }}</div>
+    <div style="margin-top: 0.3rem; color: var(--primary); font-weight: 700;"><strong>⚠️ Note:</strong> Car availability status will be updated automatically upon deletion.</div>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="{% url 'rentals:admin_bookings' %}" class="btn btn-secondary">No, Keep It</a>
+      <button type="submit" class="btn btn-primary" style="background: var(--primary);">Yes, Cancel Booking</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

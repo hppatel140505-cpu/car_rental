@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}DriveEase — Premium Chauffeur-Driven Car Rental{% endblock %}
+
+{% block content %}
+
+<!-- PREMIUM HERO SECTION -->
+<section class="hero">
+  <div class="hero__inner">
+    <div>
+      <div class="hero__tag">✨ PREMIUM CARS WITH EXPERT DRIVERS</div>
+      <h1 class="hero__title">
+        Premium Car Rentals,<br><span>With Professional Drivers</span>
+      </h1>
+      <p class="hero__subtitle">
+        Explore a curated fleet of pristine vehicles, each paired with a professional, verified chauffeur. Designed for effortless outstation trips, family holidays, and premium business travels with zero security deposit.
+      </p>
+      <div class="hero__actions">
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-primary btn-lg">Explore Cars</a>
+        {% if not user.is_authenticated %}
+          <a href="{% url 'rentals:register' %}" class="btn btn-outline btn-lg" style="color:#fff; border-color:rgba(255,255,255,0.25);">Get Started</a>
+        {% endif %}
+      </div>
+      <div class="hero__stats">
+        <div>
+          <div class="hero__stat-num">50+</div>
+          <div class="hero__stat-label">Cars</div>
+        </div>
+        <div>
+          <div class="hero__stat-num">100+</div>
+          <div class="hero__stat-label">Happy Clients</div>
+        </div>
+        <div>
+          <div class="hero__stat-num">100%</div>
+          <div class="hero__stat-label">Insured Fleet</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- RIGHT: Dynamic floating generated electric sports car -->
+    <div class="hero__img-wrap">
+      <div class="hero__image-container">
+        <div class="hero__image-glow"></div>
+        <img src="{% static 'images/hero_car.png' %}?v={% now 'U' %}" alt="Premium Sports Car" class="hero__image">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PREMIUM FEATURES STRIP -->
+<div class="features-strip">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Chauffeur Included</h3>
+        <p class="feature-desc">Every rental includes an expert, verified driver for ultimate safety and comfort.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">Zero Deposit</h3>
+        <p class="feature-desc">No security deposits or heavy upfront card locks. Simple and transparent.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">Outstation Ready</h3>
+        <p class="feature-desc">Perfect for long intercity tours with licensed tourist permits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📞</div>
+        <h3 class="feature-title">24/7 Support</h3>
+        <p class="feature-desc">Always-available concierge to coordinate or extend your journey.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3 class="feature-title">Flexible Travel</h3>
+        <p class="feature-desc">Free cancellations up to 24 hours prior and easy mid-trip route changes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED CARS (FLEET GRID) -->
+<section class="section">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">Premium Fleet</div>
+      <h2 class="section__title">Featured <span>Chauffeur Rides</span></h2>
+      <p class="section__subtitle">Experience premium hospitality on every outstation or local trip</p>
+    </div>
+
+    {% if cars %}
+      <div class="fleet-grid">
+        {% for car in cars %}
+        <a href="{% url 'rentals:car_details' car.pk %}" class="fleet-card-link">
+          <div class="fleet-card">
+            <!-- Media Container -->
+            <div class="fleet-card__media">
+              {% if car.image %}
+                <img src="{{ car.image.url }}" alt="{{ car.name }}" class="fleet-card__img">
+              {% else %}
+                <div class="fleet-card__placeholder">
+                  <span class="fleet-card__emoji"></span>
+                </div>
+              {% endif %}
+              <!-- Status Tag -->
+              {% if car.stock > 0 %}
+                <div class="fleet-card__ribbon fleet-card__ribbon--avail">✓ Available</div>
+              {% else %}
+                <div class="fleet-card__ribbon fleet-card__ribbon--out">✗ Booked</div>
+              {% endif %}
+              <!-- Category tag -->
+              <div class="fleet-card__cat">{{ car.category.name }}</div>
+            </div>
+
+            <!-- Body -->
+            <div class="fleet-card__body">
+              <h3 class="fleet-card__name">{{ car.name }}</h3>
+              <p class="fleet-card__desc">{{ car.description }}</p>
+
+              <!-- Specs Row -->
+              <div class="fleet-card__specs">
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">⛽</span>
+                  <span class="fleet-spec__label">{{ car.fuel_type }}</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">🪑</span>
+                  <span class="fleet-spec__label">{{ car.seats }} Seats</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">❄️</span>
+                  <span class="fleet-spec__label">{% if car.ac %}AC Yes{% else %}No AC{% endif %}</span>
+                </div>
+                <div class="fleet-spec">
+                  <span class="fleet-spec__icon">📦</span>
+                  <span class="fleet-spec__label">{{ car.luggage }} Bags</span>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="fleet-card__footer">
+                <div class="fleet-card__price">
+                  <span class="fleet-card__price-amount">₹{{ car.price }}</span>
+                  <span class="fleet-card__price-unit">/ day</span>
+                </div>
+                <div class="fleet-card__cta">
+                  Book Now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      <div style="text-align:center; margin-top:3.5rem;">
+        <a href="{% url 'rentals:car_list' %}" class="btn btn-primary btn-lg">View Complete Fleet →</a>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state__icon">🅿</div>
+        <div class="empty-state__title">Fleet Coming Soon</div>
+        <p class="empty-state__desc">We are listing premium rides. Check back in a moment or visit the admin portal.</p>
+        <a href="/admin/" class="btn btn-primary">Go to Admin Panel</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- HOW IT WORKS (PREMIUM STEPS) -->
+<section class="section" style="background:var(--bg-white); border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">📋 Easy Process</div>
+      <h2 class="section__title">How It <span>Works</span></h2>
+      <p class="section__subtitle">Your luxury chauffeur journey in 3 easy steps</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">🔍</div>
+        <h3 class="step-title">Select Your Vehicle</h3>
+        <p class="step-desc">Browse our premium fleet and pick the car matching your journey and guest count.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">📝</div>
+        <h3 class="step-title">Schedule & Route</h3>
+        <p class="step-desc">Provide your travel dates, pickup location, and destination, then confirm booking securely.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">😌</div>
+        <h3 class="step-title">Sit Back & Relax</h3>
+        <p class="step-desc">Our professional chauffeur arrives at your door. Just sit back, relax, and travel in ultimate comfort.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+

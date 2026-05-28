@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice — DriveEase Car Rentals</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #334155;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 3rem 1.5rem;
+      line-height: 1.5;
+    }
+    
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background-color: #fff;
+        padding: 0;
+      }
+      .invoice-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #e63946;
+    }
+
+    .brand span {
+      color: #0f172a;
+    }
+
+    .invoice-meta {
+      text-align: right;
+    }
+
+    .invoice-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .meta-item {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+
+    .grid-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .info-block-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 0.4rem;
+    }
+
+    .info-text {
+      font-size: 0.92rem;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+
+    .info-text strong {
+      color: #0f172a;
+    }
+
+    .table-wrapper {
+      margin-bottom: 3rem;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .invoice-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .invoice-table td {
+      padding: 1.2rem 1rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .cost-summary {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .summary-box {
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .summary-row.total {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      border-top: 2px solid #f1f5f9;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .summary-val {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .summary-val.total-val {
+      color: #e63946;
+      font-size: 1.25rem;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 1.5rem;
+    }
+
+    /* Print/Back CTA Buttons */
+    .cta-container {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-print {
+      background: #e63946;
+      color: #fff;
+    }
+
+    .btn-print:hover {
+      background: #c1121f;
+    }
+
+    .btn-back {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-back:hover {
+      background: #e2e8f0;
+    }
+
+    .status-stamp {
+      position: absolute;
+      top: 100px;
+      right: 50px;
+      border: 3px solid #2a9d8f;
+      color: #2a9d8f;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+      padding: 0.4rem 1rem;
+      transform: rotate(-10deg);
+      border-radius: 6px;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+    .status-stamp.stamp-returned {
+      border-color: #64748b;
+      color: #64748b;
+    }
+    .status-stamp.stamp-paid {
+      border-color: #2a9d8f;
+      color: #2a9d8f;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Action CTAs (hidden during printing) -->
+  <div class="cta-container no-print">
+    <button onclick="window.print()" class="btn btn-print">🖨️ Print Invoice</button>
+    <a href="javascript:window.close();" class="btn btn-back">❌ Close Window</a>
+  </div>
+
+  <div class="invoice-container">
+    
+    <!-- Status Watermark Stamp -->
+    <div class="status-stamp {% if booking.status == 'Returned' %}stamp-returned{% else %}stamp-paid{% endif %}">
+      {% if booking.status == 'Returned' %}COMPLETED{% else %}PAID & APPROVED{% endif %}
+    </div>
+
+    <!-- Header -->
+    <div class="invoice-header">
+      <div>
+        <div class="brand">Drive<span>Ease</span></div>
+        <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.3rem;">Premium Chauffeur-Driven Car Rentals</div>
+      </div>
+      
+      <div class="invoice-meta">
+        <h2 class="invoice-title">INVOICE</h2>
+        <div class="meta-item"><strong>Invoice Ref:</strong> DE-INV-{{ booking.id|stringformat:"05d" }}</div>
+        <div class="meta-item"><strong>Date:</strong> {{ booking.booked_at|date:"d M Y" }}</div>
+      </div>
+    </div>
+
+    <!-- Grid Customer/Business details -->
+    <div class="grid-info">
+      <div>
+        <div class="info-block-title">CLIENT INVOICED</div>
+        <div class="info-text"><strong>Customer Username:</strong> {{ booking.user.username }}</div>
+        <div class="info-text"><strong>Email Address:</strong> {{ booking.user.email }}</div>
+        <div class="info-text" style="max-width: 320px;"><strong>Pickup Address:</strong> {{ booking.pickup_address|default:"Not Specified" }}</div>
+      </div>
+      
+      <div>
+        <div class="info-block-title">RENTAL TIMELINE & VEHICLE</div>
+        <div class="info-text"><strong>Car Model:</strong> {{ booking.car.name }}</div>
+        <div class="info-text"><strong>Category Class:</strong> {{ booking.car.category.name }}</div>
+        <div class="info-text"><strong>Car Registration Plate:</strong> <span style="font-weight: 800; font-family: monospace; color: #e63946;">{% if booking.vehicle %}{{ booking.vehicle.plate_number }}{% else %}Not Assigned{% endif %}</span></div>
+        <div class="info-text" style="margin-top: 0.6rem;"><strong>Timeline:</strong> {{ booking.pickup_date }} to {{ booking.return_date }}</div>
+        <div class="info-text"><strong>Duration Selected:</strong> {{ booking.days }} Rent Day{{ booking.days|pluralize }}</div>
+      </div>
+    </div>
+
+    <!-- Billing Details Table -->
+    <div class="table-wrapper">
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Item Description</th>
+            <th>Daily Rate</th>
+            <th>Duration</th>
+            <th style="text-align: right;">Base Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Base Car Rental -->
+          <tr>
+            <td>
+              <strong>Premium Chauffeur-Driven Rental</strong>
+              <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.25rem;">Daily rental of vehicle with professional driver: {{ booking.car.name }}</div>
+            </td>
+            <td>₹{{ booking.car.price|floatformat:2 }}</td>
+            <td>{{ booking.days }} Day{{ booking.days|pluralize }}</td>
+            <td style="text-align: right; font-weight: 700;">₹{% widthratio booking.car.price 1 booking.days %}.00</td>
+          </tr>
+          
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Final Price Breakdown calculations -->
+    <div class="cost-summary">
+      <div class="summary-box">
+        <!-- Subtotal calculation -->
+        <div class="summary-row">
+          <span>Rental Subtotal</span>
+          <!-- Dynamic calculations in Django template -->
+          <span class="summary-val" id="val-subtotal">₹0.00</span>
+        </div>
+
+        
+        <!-- Grand Total -->
+        <div class="summary-row total">
+          <span>Invoice Grand Total</span>
+          <span class="summary-val total-val" id="val-grandtotal">₹0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="footer-note">
+      Thank you for traveling with DriveEase! Enjoy your stress-free journey.<br>
+      <span style="font-size: 0.72rem; margin-top: 0.5rem; display: block; color: #cbd5e1;">This is a computer generated invoice and is digitally signed. No physical signature is required.</span>
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      // Inline calculations using actual server context
+      const days = Number("{{ booking.days }}");
+      const carPrice = Number("{{ booking.car.price }}");
+
+      const baseCost = carPrice * days;
+      const subtotal = baseCost;
+      const grandTotal = subtotal;
+
+      document.getElementById('val-subtotal').textContent = '₹' + subtotal.toLocaleString('en-IN') + '.00';
+      document.getElementById('val-grandtotal').textContent = '₹' + grandTotal.toLocaleString('en-IN') + '.00';
+    })();
+  </script>
+</body>
+</html>

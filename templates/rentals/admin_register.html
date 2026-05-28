@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Register — DriveEase Control Center</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+  <style>
+    body.admin-auth-body {
+      background: radial-gradient(circle at 50% 50%, #1e1e2f 0%, #0f0f1a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Glow Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .orb-1 {
+      background: var(--primary);
+      width: 400px;
+      height: 400px;
+      top: -100px;
+      left: -100px;
+    }
+    .orb-2 {
+      background: #3b82f6;
+      width: 400px;
+      height: 400px;
+      bottom: -100px;
+      right: -100px;
+    }
+
+    .admin-auth-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      position: relative;
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      margin: 2rem 0;
+    }
+
+    .admin-auth-logo {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .admin-auth-logo span {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .admin-auth-subtitle {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+      font-weight: 500;
+    }
+
+    .admin-auth-form-group {
+      margin-bottom: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .admin-auth-form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .admin-auth-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.7rem 1rem;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .admin-auth-input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.2);
+    }
+
+    .admin-auth-input::placeholder {
+      color: #64748b;
+    }
+
+    .admin-auth-btn {
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 0.8rem;
+      border-radius: var(--radius);
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(230, 57, 70, 0.4);
+      transition: all 0.25s ease;
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .admin-auth-btn:hover {
+      background: var(--primary-dk);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(230, 57, 70, 0.55);
+    }
+
+    .admin-auth-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.86rem;
+      color: #94a3b8;
+    }
+    .admin-auth-link a {
+      color: var(--primary);
+      font-weight: 700;
+      transition: color 0.2s ease;
+    }
+    .admin-auth-link a:hover {
+      color: #ffa1ad;
+      text-decoration: underline;
+    }
+
+    .admin-help-text {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 0.2rem;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="admin-auth-body">
+
+  <!-- Glow Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="admin-auth-card">
+    <div class="admin-auth-logo">Drive<span>Ease Admin</span></div>
+    <div class="admin-auth-subtitle">Register a Staff Administrator Account</div>
+
+    {% if messages %}
+      <div style="margin-bottom: 1.2rem;">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" style="position: static; max-width: 100%; animation: none; font-size: 0.82rem; padding: 0.6rem 0.8rem; border-radius: var(--radius); margin-bottom: 0.5rem;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="errorlist" style="margin-bottom: 1.2rem;">
+        {% for err in form.non_field_errors %}
+          <div>⚠️ {{ err }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      
+      <!-- Username -->
+      <div class="admin-auth-form-group">
+        <label for="id_username">Admin Username</label>
+        <input type="text" name="username" id="id_username" class="admin-auth-input" placeholder="Choose a username" required autofocus
+          {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+        {% if form.username.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.username.errors.0 }}</div>
+        {% endif %}
+        <div class="admin-help-text">Letters, digits and @/./+/-/_ only.</div>
+      </div>
+
+      <!-- Password 1 -->
+      <div class="admin-auth-form-group">
+        <label for="id_password1">Password</label>
+        <input type="password" name="password1" id="id_password1" class="admin-auth-input" placeholder="Create a strong password" required>
+        {% if form.password1.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+        <div class="admin-help-text">Minimum 8 characters. Must not be entirely numeric.</div>
+      </div>
+
+      <!-- Password 2 -->
+      <div class="admin-auth-form-group">
+        <label for="id_password2">Confirm Password</label>
+        <input type="password" name="password2" id="id_password2" class="admin-auth-input" placeholder="Confirm your password" required>
+        {% if form.password2.errors %}
+          <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="admin-auth-btn">Register Admin Account →</button>
+    </form>
+
+    <div class="admin-auth-link">
+      Already have a staff account? <a href="{% url 'rentals:admin_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Sign In here</a>
+    </div>
+    
+    <div class="admin-auth-link" style="margin-top: 0.8rem; font-size: 0.8rem;">
+      <a href="{% url 'rentals:home' %}" style="color: #64748b; font-weight: 500;">← Back to Main Site</a>
+    </div>
+  </div>
+
+</body>
+</html>

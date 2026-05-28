@@ -1,0 +1,112 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Manage Fleet Inventory — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}Fleet / Cars Inventory Management{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-card">
+  <div class="admin-card__title" style="margin-bottom: 2rem;">
+    <span>Active Vehicles Fleet</span>
+    <a href="{% url 'rentals:admin_car_add' %}" class="btn btn-primary btn-sm">➕ Add New Car</a>
+  </div>
+
+  <!-- Search Controls -->
+  <div class="admin-filter-bar">
+    <form method="GET" action="" style="display: flex; flex: 1; gap: 0.5rem; max-width: 380px;">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by name, category or specs..." class="admin-search-input" style="max-width: 100%;">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      {% if query %}
+        <a href="?" class="btn btn-secondary btn-sm" style="display: flex; align-items: center;">Reset</a>
+      {% endif %}
+    </form>
+    <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
+      Total: {{ cars|length }} cars listed
+    </div>
+  </div>
+
+  <!-- Cars Grid or Table -->
+  {% if cars %}
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Vehicle Image</th>
+          <th>Car Name / Model</th>
+          <th>Category</th>
+          <th>Rent/Day (₹)</th>
+          <th>Status</th>
+          <th>Listed Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for car in cars %}
+        <tr>
+          <td>
+            {% if car.image %}
+              <img src="{{ car.image.url }}" alt="{{ car.name }}" style="width: 80px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border);">
+            {% else %}
+              <div style="width: 80px; height: 50px; border-radius: 6px; background: var(--bg-gray); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid var(--border);">🚘</div>
+            {% endif %}
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--text); font-size: 0.95rem;">{{ car.name }}</div>
+            <span style="font-size: 0.75rem; color: var(--muted); font-family: monospace; display: block; margin-top: 0.05rem;">🚘 Units: {{ car.stock }} available / {{ car.vehicles.count }} total</span>
+            <div style="font-size: 0.76rem; color: var(--muted); max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem;" title="{{ car.description }}">
+              {{ car.description }}
+            </div>
+          </td>
+          <td>
+            <span class="badge" style="background: rgba(230, 57, 70, 0.08); color: var(--primary); font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">
+              {{ car.category.name }}
+            </span>
+          </td>
+          <td style="font-weight: 800; color: var(--primary); font-size: 1rem;">
+            ₹{{ car.price|floatformat:2 }}
+          </td>
+          <td>
+            {% if car.is_under_maintenance %}
+              <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #d97706; padding: 0.35rem 0.8rem; font-size: 0.78rem;">
+                🔧 Maintenance
+              </span>
+            {% elif car.stock > 0 %}
+              <span class="badge badge-available" style="padding: 0.35rem 0.8rem; font-size: 0.78rem;">
+                🟢 Available
+              </span>
+            {% else %}
+              <span class="badge badge-out" style="padding: 0.35rem 0.8rem; font-size: 0.78rem;">
+                🔴 Booked
+              </span>
+            {% endif %}
+          </td>
+          <td style="font-size: 0.8rem; color: var(--muted);">
+            {{ car.created_at|date:"d M Y" }}
+          </td>
+          <td>
+            <div class="action-btn-group">
+              <a href="{% url 'rentals:admin_car_edit' car.pk %}" class="action-btn action-btn-edit" title="Edit Car Specs">✏️</a>
+              <a href="{% url 'rentals:admin_car_delete' car.pk %}" class="action-btn action-btn-delete" title="Delete Car">❌</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon">🔍</span>
+    <h3 class="empty-state__title">No Cars Found</h3>
+    <p class="empty-state__desc">There are no vehicles matching your search criteria or the inventory is empty.</p>
+    {% if query %}
+      <a href="?" class="btn btn-secondary btn-sm">Clear Search</a>
+    {% else %}
+      <a href="{% url 'rentals:admin_car_add' %}" class="btn btn-primary btn-sm">Add First Car</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Remove Car: {{ car.name }} — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}🗑️ Remove Car: {{ car.name }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="breadcrumb">
+  <a href="{% url 'rentals:admin_dashboard' %}">Dashboard</a> &raquo; 
+  <a href="{% url 'rentals:admin_cars' %}">Cars</a> &raquo;
+  <span>Delete Car</span>
+</div>
+
+<div class="admin-card" style="max-width: 550px; margin: 2rem auto; text-align: center; border-color: rgba(230, 57, 70, 0.2);">
+  <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+  <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem;">Remove Vehicle from Fleet?</h2>
+  
+  <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+    Are you sure you want to permanently delete <strong>{{ car.name }}</strong> from the fleet catalogue?
+  </p>
+
+  <div style="background: var(--bg-gray); padding: 1rem; border-radius: var(--radius); text-align: left; font-size: 0.86rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+    {% if car.image %}
+      <img src="{{ car.image.url }}" alt="{{ car.name }}" style="width: 80px; height: 50px; border-radius: 4px; object-fit: cover;">
+    {% endif %}
+    <div>
+      <div><strong>Car Model:</strong> {{ car.name }}</div>
+      <div><strong>🏷️ Category:</strong> {{ car.category.name }}</div>
+      <div><strong>💰 Rent Cost:</strong> ₹{{ car.price|floatformat:2 }}/day</div>
+    </div>
+  </div>
+
+  <p style="color: var(--primary); font-size: 0.82rem; font-weight: 700; margin-bottom: 2rem;">
+    ❌ WARNING: This action cannot be undone. All active booking constraints might be violated if you delete this car.
+  </p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="{% url 'rentals:admin_cars' %}" class="btn btn-secondary">No, Keep It</a>
+      <button type="submit" class="btn btn-primary" style="background: var(--primary);">Yes, Delete Car</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

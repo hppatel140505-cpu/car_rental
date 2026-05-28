@@ -1,0 +1,78 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Car Categories — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}🏷️ Car Categories / Types Management{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-card" style="max-width: 900px; margin: 0 auto;">
+  <div class="admin-card__title" style="margin-bottom: 2rem;">
+    <span>Car Class & Category Types</span>
+    <a href="{% url 'rentals:admin_cartype_add' %}" class="btn btn-primary btn-sm">➕ Add Category</a>
+  </div>
+
+  <!-- Search -->
+  <div class="admin-filter-bar">
+    <form method="GET" action="" style="display: flex; flex: 1; gap: 0.5rem; max-width: 380px;">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search categories..." class="admin-search-input" style="max-width: 100%;">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      {% if query %}
+        <a href="?" class="btn btn-secondary btn-sm" style="display: flex; align-items: center;">Reset</a>
+      {% endif %}
+    </form>
+    <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
+      Total: {{ cartypes|length }} categories
+    </div>
+  </div>
+
+  <!-- Table -->
+  {% if cartypes %}
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width: 80px;">ID</th>
+          <th>Category Name</th>
+          <th>Description Specifications</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cartype in cartypes %}
+        <tr>
+          <td style="font-weight: 800; color: var(--primary);">#{{ cartype.id }}</td>
+          <td style="font-weight: 700; color: var(--text);">{{ cartype.name }}</td>
+          <td style="font-size: 0.85rem; color: var(--muted);">
+            {% if cartype.description %}
+              {{ cartype.description }}
+            {% else %}
+              <em style="color: var(--light);">No category description listed.</em>
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-btn-group">
+              <a href="{% url 'rentals:admin_cartype_edit' cartype.pk %}" class="action-btn action-btn-edit" title="Edit Category">✏️</a>
+              <a href="{% url 'rentals:admin_cartype_delete' cartype.pk %}" class="action-btn action-btn-delete" title="Delete Category">❌</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon">🔍</span>
+    <h3 class="empty-state__title">No Categories Found</h3>
+    <p class="empty-state__desc">There are no categories listed matching your criteria or category library is empty.</p>
+    {% if query %}
+      <a href="?" class="btn btn-secondary btn-sm">Clear Search</a>
+    {% else %}
+      <a href="{% url 'rentals:admin_cartype_add' %}" class="btn btn-primary btn-sm">Add First Category</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

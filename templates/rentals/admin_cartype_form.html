@@ -1,0 +1,57 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}{{ title }} — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}🏷️ {{ title }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="breadcrumb">
+  <a href="{% url 'rentals:admin_dashboard' %}">Dashboard</a> &raquo; 
+  <a href="{% url 'rentals:admin_cartypes' %}">Categories</a> &raquo;
+  <span>{{ title }}</span>
+</div>
+
+<div class="admin-card" style="max-width: 650px; margin: 0 auto;">
+  <div class="admin-card__title" style="margin-bottom: 2rem;">
+    <span>📝 Category Definition Details</span>
+  </div>
+
+  <form method="POST" class="auth-form">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+      <div class="errorlist">
+        {% for error in form.non_field_errors %}
+          <div>⚠️ {{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Category Name -->
+    <div class="admin-form-group">
+      <label for="{{ form.name.id_for_label }}">Category Title / Name</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.name.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div class="admin-form-group" style="margin-top: 1.25rem;">
+      <label for="{{ form.description.id_for_label }}">Category Description & Features</label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <div style="color: var(--primary); font-size: 0.76rem; margin-top: 0.2rem;">{{ form.description.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; justify-content: flex-end;">
+      <a href="{% url 'rentals:admin_cartypes' %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Category</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

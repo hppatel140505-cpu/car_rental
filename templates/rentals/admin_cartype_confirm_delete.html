@@ -1,0 +1,36 @@
+{% extends 'rentals/admin_base.html' %}
+
+{% block admin_title %}Delete Category: {{ cartype.name }} — DriveEase Custom Admin{% endblock %}
+
+{% block admin_header_title %}🗑️ Delete Category: {{ cartype.name }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="breadcrumb">
+  <a href="{% url 'rentals:admin_dashboard' %}">Dashboard</a> &raquo; 
+  <a href="{% url 'rentals:admin_cartypes' %}">Categories</a> &raquo;
+  <span>Delete Category</span>
+</div>
+
+<div class="admin-card" style="max-width: 550px; margin: 2rem auto; text-align: center; border-color: rgba(230, 57, 70, 0.2);">
+  <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+  <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem;">Delete Car Category?</h2>
+  
+  <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+    Are you sure you want to permanently delete category <strong>{{ cartype.name }}</strong>?
+  </p>
+
+  <p style="color: var(--primary); font-size: 0.82rem; font-weight: 700; margin-bottom: 2rem; background: rgba(230,57,70,0.06); padding: 0.8rem; border-radius: 4px;">
+    ❌ WARNING: This action is destructive! Any cars linked to this category type will be deleted because of CASCADE delete triggers.
+  </p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="{% url 'rentals:admin_cartypes' %}" class="btn btn-secondary">No, Keep It</a>
+      <button type="submit" class="btn btn-primary" style="background: var(--primary);">Yes, Delete Category</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
